@@ -51,7 +51,7 @@ in {
         ${lib.getExe' pkgs.findutils "xargs"} -r docker rm --force &&
         docker run --name gotenberg --rm --detach --publish "${gotenbergPort}:${gotenbergPort}" ${gotenbergImage}
       '';
-      before = ["devenv:enterShell"];
+      before = ["setup:build" "devenv:enterShell"];
     };
     "setup:build" = {
       exec = "build";

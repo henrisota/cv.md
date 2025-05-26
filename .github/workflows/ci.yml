@@ -1,0 +1,38 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: "ci"
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: devenv shell bash -- -e {0}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.create-artifact-name.outputs.artifact-name }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare
+        uses: ./.github/actions/prepare
+      - name: Build
+        run: build
+      - name: Create artifact name
+        id: create-artifact-name
+        run: echo "artifact-name=${{ github.sha }}" >> $GITHUB_OUTPUT
+      - name: Upload artifacts
+        id: upload-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.create-artifact-name.outputs.artifact-name }}
+          path: output/cv.pdf
+          retention-days: 7
+          overwrite: true
