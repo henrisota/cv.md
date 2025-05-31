@@ -23,12 +23,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Prepare
         uses: ./.github/actions/prepare
-      - name: Build
-        run: build
+      - name: Build CV
+        run: build-cv
       - name: Create artifact name
         id: create-artifact-name
-        run: echo "artifact-name=${{ github.sha }}" >> $GITHUB_OUTPUT
-      - name: Upload artifacts
+        run: echo "artifact-name=cv-${{ github.sha }}" >> $GITHUB_OUTPUT
+      - name: Upload artifact
         id: upload-artifact
         uses: actions/upload-artifact@v4
         with:
