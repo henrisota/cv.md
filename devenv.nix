@@ -15,13 +15,8 @@ in {
     findutils
   ];
 
-  processes.build.exec = ''
-    ${lib.getExe pkgs.fswatch} -o src |
-    ${lib.getExe' pkgs.findutils "xargs"} -n1 -I{} build
-  '';
-
   scripts = {
-    build.exec = ''
+    build-cv.exec = ''
       mkdir -p ${outputDirectory}
       ${lib.getExe pkgs.curl} --request POST http://localhost:${gotenbergPort}/forms/chromium/convert/markdown \
         --form files=@src/index.html \
@@ -36,25 +31,27 @@ in {
         -o ${outputDirectory}/cv.pdf
       ${lib.getExe pkgs.exiftool} -all:all= -overwrite_original ${outputDirectory}/cv.pdf
     '';
-
+    clean-gotenberg.exec = ''
+      docker ps -a -q --filter ancestor=${gotenbergImage} | ${lib.getExe' pkgs.findutils "xargs"} -r docker rm --force
+    '';
     clean.exec = ''
-      mkdir -p ${outputDirectory}
       rm ${outputDirectory}/cv.pdf
-      process-compose down
+    '';
+    setup-gotenberg.exec = ''
+      clean-gotenberg
+      docker run --name gotenberg --rm --detach --publish "${gotenbergPort}:${gotenbergPort}" ${gotenbergImage}
+    '';
+    setup.exec = ''
+      setup-gotenberg
+    '';
+    write-cv.exec = ''
+      ${lib.getExe pkgs.fswatch} -o src | ${lib.getExe' pkgs.findutils "xargs"} -n1 -I{} build-cv
     '';
   };
 
   tasks = {
-    "setup:gotenberg" = {
-      exec = ''
-        docker ps -a -q --filter ancestor=${gotenbergImage} |
-        ${lib.getExe' pkgs.findutils "xargs"} -r docker rm --force &&
-        docker run --name gotenberg --rm --detach --publish "${gotenbergPort}:${gotenbergPort}" ${gotenbergImage}
-      '';
-      before = ["setup:build" "devenv:enterShell"];
-    };
-    "setup:build" = {
-      exec = "build";
+    "setup:setup" = {
+      exec = "setup";
       before = ["devenv:enterShell"];
     };
   };
