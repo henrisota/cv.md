@@ -19,6 +19,9 @@ in {
     build-cv.exec = ''
       mkdir -p ${outputDirectory}
       ${lib.getExe pkgs.curl} --request POST http://localhost:${gotenbergPort}/forms/chromium/convert/markdown \
+        --retry 3 \
+        --retry-delay 0 \
+        --retry-all-errors \
         --form files=@src/index.html \
         --form files=@src/main.md \
         --form files=@src/styles.css \
@@ -35,7 +38,7 @@ in {
       docker ps -a -q --filter ancestor=${gotenbergImage} | ${lib.getExe' pkgs.findutils "xargs"} -r docker rm --force
     '';
     clean.exec = ''
-      rm ${outputDirectory}/cv.pdf
+      rm -f ${outputDirectory}/cv.pdf
     '';
     setup-gotenberg.exec = ''
       clean-gotenberg
