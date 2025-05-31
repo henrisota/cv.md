@@ -6,6 +6,9 @@ outputDirectory := "output"
 build-cv:
     mkdir -p {{outputDirectory}}
     curl --request POST http://localhost:{{gotenbergPort}}/forms/chromium/convert/markdown \
+      --retry 3 \
+      --retry-delay 0 \
+      --retry-all-errors \
       --form files=@src/index.html \
       --form files=@src/main.md \
       --form files=@src/styles.css \
@@ -21,7 +24,7 @@ clean-gotenberg:
     docker ps -a -q --filter ancestor={{gotenbergImage}} | xargs -r docker rm --force
 
 clean:
-    rm {{outputDirectory}}/cv.pdf
+    rm -f {{outputDirectory}}/cv.pdf
 
 [private]
 setup-gotenberg: clean-gotenberg
