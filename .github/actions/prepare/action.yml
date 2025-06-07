@@ -4,7 +4,7 @@ description: prepare development environment
 runs:
   using: 'composite'
   steps:
-    - uses: cachix/install-nix-action@v30
+    - uses: DeterminateSystems/determinate-nix-action@v3.6.2
     - name: Install devenv
       shell: bash
       run: nix profile install nixpkgs#devenv
