@@ -20,7 +20,7 @@ jobs:
     outputs:
       artifact-name: ${{ steps.create-artifact-name.outputs.artifact-name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare
         uses: ./.github/actions/prepare
       - name: Build CV
