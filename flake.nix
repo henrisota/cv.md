@@ -17,6 +17,8 @@
         "x86_64-linux"
       ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
+
+      maxPages = 1;
     in
     {
       packages = forAllSystems (pkgs: {
@@ -45,6 +47,30 @@
       checks = forAllSystems (pkgs: {
         cv = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
+        # Applicant tracking systems read the extracted text, not the rendering
+        cv-text =
+          pkgs.runCommand "cv-text"
+            {
+              nativeBuildInputs = [ pkgs.poppler-utils ];
+              pdf = "${self.packages.${pkgs.stdenv.hostPlatform.system}.default}/cv.pdf";
+            }
+            ''
+              pages=$(pdfinfo $pdf | awk '/^Pages:/ { print $2 }')
+              if [ "$pages" -gt ${toString maxPages} ]; then
+                echo "cv.pdf has $pages pages, expected at most ${toString maxPages}"
+                exit 1
+              fi
+
+              pdftotext -raw $pdf - | tr -s '[:space:]' ' ' > text
+              grep -E '^#+ ' ${./src/main.md} | sed -E 's/^#+ //; s/ *`[^`]*`$//' | while read -r heading; do
+                if ! grep -qiF "$heading" text; then
+                  echo "heading missing from extracted text: $heading"
+                  exit 1
+                fi
+              done
+              touch $out
+            '';
+
       });
 
       devShells = forAllSystems (pkgs: {
@@ -52,6 +78,7 @@
           packages = [
             pkgs.just
             pkgs.watchexec
+            pkgs.poppler-utils
           ];
         };
       });
