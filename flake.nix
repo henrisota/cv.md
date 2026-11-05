@@ -18,6 +18,7 @@
       ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
 
+      maxPages = 1;
       # Parsers and recruiters file the CV under this name
       fileName = "Theo-Harmon-CV.pdf";
     in
@@ -48,6 +49,35 @@
       checks = forAllSystems (pkgs: {
         cv = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
+        # Applicant tracking systems read the extracted text, not the rendering
+        cv-text =
+          pkgs.runCommand "cv-text"
+            {
+              nativeBuildInputs = [
+                pkgs.pandoc
+                pkgs.poppler-utils
+              ];
+              pdf = "${self.packages.${pkgs.stdenv.hostPlatform.system}.default}/${fileName}";
+            }
+            ''
+              pages=$(pdfinfo $pdf | awk '/^Pages:/ { print $2 }')
+              if [ "$pages" -gt ${toString maxPages} ]; then
+                echo "${fileName} has $pages pages, expected at most ${toString maxPages}"
+                exit 1
+              fi
+
+              # Lost spaces and unmapped glyphs show up as source words missing from the extracted text
+              words() { tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '\n' | sort -u; }
+              pandoc --to plain ${./src/main.md} | words > expected
+              pdftotext -raw $pdf - | words > extracted
+              missing=$(comm -23 expected extracted)
+              if [ -n "$missing" ]; then
+                echo "words missing from extracted text:" $missing
+                exit 1
+              fi
+              touch $out
+            '';
+
       });
 
       devShells = forAllSystems (pkgs: {
@@ -55,6 +85,7 @@
           packages = [
             pkgs.just
             pkgs.watchexec
+            pkgs.poppler-utils
           ];
         };
       });
