@@ -3,12 +3,17 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     {
       self,
       nixpkgs,
+      git-hooks,
     }:
     let
       systems = [
@@ -78,11 +83,33 @@
               touch $out
             '';
 
+        git-hooks = git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
+          src = ./.;
+          hooks = {
+            check-case-conflicts.enable = true;
+            check-merge-conflicts.enable = true;
+            end-of-file-fixer.enable = true;
+            trim-trailing-whitespace.enable = true;
+
+            yamlfmt.enable = true;
+            yamllint.enable = true;
+            actionlint.enable = true;
+            zizmor.enable = true;
+
+            rumdl.enable = true;
+            typos.enable = true;
+
+            nixfmt.enable = true;
+            deadnix.enable = true;
+            statix.enable = true;
+          };
+        };
       });
 
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShellNoCC {
-          packages = [
+          inherit (self.checks.${pkgs.stdenv.hostPlatform.system}.git-hooks) shellHook;
+          packages = self.checks.${pkgs.stdenv.hostPlatform.system}.git-hooks.enabledPackages ++ [
             pkgs.just
             pkgs.watchexec
             pkgs.poppler-utils

@@ -1,0 +1,11 @@
+extends: default
+
+rules:
+  document-start: disable
+  line-length: disable
+  # GitHub Actions keys its triggers on `on`
+  truthy:
+    check-keys: false
+  # Matches the single space yamlfmt leaves before a pinned action's version comment
+  comments:
+    min-spaces-from-content: 1
