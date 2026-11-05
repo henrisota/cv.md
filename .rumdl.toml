@@ -1,0 +1,4 @@
+[global]
+# Prose is soft-wrapped, the README header is HTML, and main.md skips from h2
+# to h4 because styles.css lays out each heading level as its own column
+disable = ["MD001", "MD013", "MD033", "MD041"]
