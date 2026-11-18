@@ -40,7 +40,8 @@ Replace the sample in [src/main.md](./src/main.md) with your own CV. Set `pageti
 Keep the sample's shape, which is what applicant tracking systems parse and recruiters skim most reliably:
 
 - a `##` heading for each section, using common names such as Work Experience and Education
-- a `###` line for each role, as `Title - Employer` followed by the dates in backticks, which are set flush right
+- your contact details on one line directly under the `#` name
+- a `###` line for each role, as the title followed by the dates in backticks, which are set flush right, then the employer on the next paragraph
 - short bullets under each role, each stating a result and, where you can, a number
 
 To continuously build the CV while writing it, run

@@ -87,7 +87,7 @@ video {
   font-size: 100%;
   font: inherit;
   vertical-align: baseline;
-  color: #0C0604;
+  color: #333333;
 }
 
 html {
@@ -127,7 +127,7 @@ table {
 
 @page {
   size: A4;
-  margin: 15mm;
+  margin: 15mm 18mm;
 }
 
 body {
@@ -144,8 +144,12 @@ ul {
 
 /* WeasyPrint resolves the revert above to numbers for ul too */
 ul {
-  list-style-type: disc;
+  list-style-type: circle;
   margin-bottom: 6pt;
+}
+
+li::marker {
+  color: #8a8a8a;
 }
 
 ul > li {
@@ -166,6 +170,12 @@ h2 {
 h1 {
   font-size: 1.6em;
   line-height: 1.1;
+  color: #063d7f;
+}
+
+h1+p {
+  font-size: 0.9em;
+  margin-top: 2pt;
 }
 
 /* Each heading sits on its own line above its content, as parsers expect */
@@ -174,12 +184,12 @@ h2 {
   margin-top: 10pt;
   margin-bottom: 4pt;
   padding-bottom: 2pt;
-  border-bottom: 0.5pt solid #0C0604;
+  color: #063d7f;
+  border-bottom: 0.5pt solid #b5c4d6;
 }
 
 p {
   margin-bottom: 6pt;
-  text-align: justify;
 }
 
 h3 {
@@ -190,9 +200,16 @@ h3 {
 
 h3 code {
   font-weight: normal;
-  color: #424242;
+  font-size: 0.9em;
+  color: #6b6b6b;
   float: right;
   margin-left: 10px;
+}
+
+h3+p {
+  font-size: 0.95em;
+  color: #6b6b6b;
+  margin-bottom: 3pt;
 }
 
 h2+h3 {
