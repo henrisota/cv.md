@@ -24,8 +24,17 @@
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
 
       maxPages = 1;
+
+      authorMatches = builtins.match ".*\nauthor-meta: *\"?([^\"\n]+)\"?\n.*" (
+        builtins.readFile ./src/main.md
+      );
+      author =
+        if authorMatches == null then
+          throw "Set author-meta in the front matter of src/main.md; it names the PDF"
+        else
+          builtins.head authorMatches;
       # Parsers and recruiters file the CV under this name
-      fileName = "Theo-Harmon-CV.pdf";
+      fileName = "${builtins.replaceStrings [ " " ] [ "-" ] author}-CV.pdf";
     in
     {
       packages = forAllSystems (pkgs: {

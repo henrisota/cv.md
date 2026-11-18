@@ -35,7 +35,7 @@ or, without Just, `nix build`, which writes it to `result/`.
 
 ### Writing
 
-Replace the sample in [src/main.md](./src/main.md) with your own CV. Set `pagetitle` and `author-meta` in its front matter, which become the PDF's title and author, and `fileName` in [flake.nix](./flake.nix), so the file carries your name.
+Replace the sample in [src/main.md](./src/main.md) with your own CV. Set `pagetitle` and `author-meta` in its front matter, which become the PDF's title and author; `author-meta` also names the file, as `Jane-Doe-CV.pdf`.
 
 Keep the sample's shape, which is what applicant tracking systems parse and recruiters skim most reliably:
 
@@ -61,6 +61,27 @@ just check
 ### Releasing
 
 Push a tag starting with `v` to publish the CV as a GitHub release.
+
+## Keeping up with upstream
+
+Clone this repository rather than generating from it, so your copy shares its history, and add it as a remote you only fetch from:
+
+```shell
+git clone https://github.com/henrisota/cv.md cv
+cd cv
+git remote rename origin cv.md
+git remote set-url --push cv.md DISABLE
+git config merge.ours.driver true
+```
+
+Point `origin` at your own repository. To take improvements to the build, checks and styling, run
+
+```shell
+git fetch cv.md
+git merge cv.md/main
+```
+
+[.gitattributes](./.gitattributes) keeps your `src/main.md` through every merge, given the `merge.ours.driver` setting above. Changes to `src/styles.css` merge normally, conflicting only where you restyled the same lines.
 
 ## Structure
 
